@@ -3,6 +3,13 @@ name = "syml"
 version = "0.1.0"
 edition = "2021"
 
+authors = ["A4-Tacks <wdsjxhno1001@163.com>"]
+description = "SYML is a configuration language similar to YAML, but may be more user-friendly"
+keywords = ["serde", "serialization", "yaml"]
+license = "MIT"
+repository = "https://github.com/A4-Tacks/syml-rs"
+
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [[test]]
