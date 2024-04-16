@@ -1,0 +1,8 @@
+- "abc"
+- "def\n\
+   ghi"
+- "jk\
+  \ lmn"
+- "bs\\"
+- "esc\x1b\u001b\u{1b}"
+- 'abc'
