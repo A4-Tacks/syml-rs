@@ -23,14 +23,14 @@ SYML is a configuration language similar to YAML, but may be more user-friendly
     / comment? `\r`? `\n` \[ \\t]\*\
   )
 - **simple-val**:\
-  [!#$%&()\*+./0-9<=>?@A-Z\\\\^\_\`a-z|\~\\\-\p{XID\_Start}]\
-  [!#$%&()\*+./0-9<=>?@A-Z\\\\^\_\`a-z|\~\\\-'\p{XID\_Continue}]*\
+  ([!#$%&()\*+./0-9<=>?@A-Z\\\\^\_\`a-z|\~\p{XID\_Start}] / `-` !` `)\
+  [!#$%&()\*+./0-9<=>?@A-Z\\\\^\_\`a-z|\~\\\-'\p{XID\_Continue}]\*\
   / `'` \[^'\r\n] `'`\
   / `"` (escape\* / \[^\\r\\n\\\\]) `"`\
 - **inline-value**:\
-  `[` _ (simple_val (_ `,` _ simple_val)* _ `,`?)? _ `]`\
-  / `{` _ (simple_val _ `:` _ inline-value (_ `,` simple_val _ `:` _ inline-value)* _ `,`?)? _ `}`\
-  / simple_val
+  `[` _ (simple-val (_ `,` _ simple-val)* _ `,`?)? _ `]`\
+  / `{` _ (simple-val _ `:` _ inline-value (_ `,` simple-val _ `:` _ inline-value)* _ `,`?)? _ `}`\
+  / simple-val
 - **list**:\
   `- ` value `\n` (cnl indent(+2) `- ` value(indent+2))\*
 - **value**:\

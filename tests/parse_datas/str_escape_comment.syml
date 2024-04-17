@@ -1,2 +1,6 @@
 str: "abc\; This is a comment
       def"
+str1: "abc\; This is a comment
+      \ def"
+str2: "abc\; This is a comment
+      \  def"
