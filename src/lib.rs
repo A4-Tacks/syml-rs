@@ -1,5 +1,8 @@
 #![doc = include_str!("../README.md")]
 
+#[cfg(feature = "cli-utils")]
+pub mod cli_utils;
+
 pub mod parser;
 mod serialize;
 

@@ -1,6 +1,6 @@
 [package]
 name = "syml"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 
 authors = ["A4-Tacks <wdsjxhno1001@163.com>"]
@@ -12,20 +12,32 @@ repository = "https://github.com/A4-Tacks/syml-rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[[test]]
-name = "parse_test"
-path = "tests/parse_test.rs"
-harness = false
-
 [features]
 default = []
 serde_impl = ["serde", "serde/derive", "linked-hash-map/serde_impl"]
+cli-utils = ["serde_json"]
 
 [dependencies]
 linked-hash-map = "0.5.6"
 peg = "0.8.2"
 serde = { version = "1.0.197", optional = true }
+serde_json = { version = "1.0.115", optional = true }
 unicode-ident = "1.0.12"
 
 [dev-dependencies]
 serde_json = "1.0.115"
+
+[[test]]
+name = "parse_test"
+path = "tests/parse_test.rs"
+harness = false
+
+[[bin]]
+name = "syml2json"
+required-features = ["cli-utils"]
+path = "./src/bin/syml2json.rs"
+
+[[bin]]
+name = "json2syml"
+required-features = ["cli-utils"]
+path = "./src/bin/json2syml.rs"
