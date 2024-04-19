@@ -14,18 +14,19 @@ syn case match
 setlocal iskeyword=@,39,45,48-57,a-z,A-Z,92,95,96,124,126,!,#,$,%,&,(,),*,+,.,/,<,=,>,?,@,^
 setlocal shiftwidth=2
 
+syn match symlKey /:/
 syn match symlValue /\%([!#$%&()\*+./0-9<=>?@A-Z^\_\`a-z|~\\]\|-\%( \)\@!\)[!#$%&()\*+./0-9<=>?@A-Z^\_\`a-z|~'\\\-]*/
+syn match symlKey /\%([!#$%&()\*+./0-9<=>?@A-Z^\_\`a-z|~\\]\|-\%( \)\@!\)[!#$%&()\*+./0-9<=>?@A-Z^\_\`a-z|~'\\\-]*[ \t]*:/
 syn match symlValue /'[^']*'/
-syn region symlValue start=/"/ end=/"/ contains=symlEscape,symlInStringComment
+syn match symlKey /'[^']*'[ \t]*:/
+syn region symlValue start=/"/ end=/"/ contains=symlEscape
 syn match symlEscape /\\[nrt"' \t\\]/ contained
-syn match symlEscape /\\;\@=/ contained
+syn match symlEscape /\\;\@=/ nextgroup=symlComment contained
 syn match symlEscape /\\\r\=\n/ contained
 syn match symlArray /- /
-syn region symlInlineArray start=/\[/ end=/]/ contains=TOP,symlArray,symlKeyval
+syn region symlInlineArray start=/\[/ end=/]/ contains=TOP,symlArray,symlKey
 syn region symlInlineTable start=/{/ end=/}/ contains=TOP,symlArray
-syn match symlKeyval /:/
 syn match symlComment /;.*/
-syn match symlInStringComment /\\\@<=;.*/ contained
 
 " link color {{{1
 hi def link symlValue String
@@ -33,9 +34,8 @@ hi def link symlEscape SpecialChar
 hi def link symlArray Repeat
 hi def link symlInlineArray NONE
 hi def link symlInlineTable NONE
-hi def link symlKeyval Identifier
+hi def link symlKey Keyword
 hi def link symlComment Comment
-hi def link symlInStringComment Comment
 " }}}1
 
 let b:current_syntax = 'syml'

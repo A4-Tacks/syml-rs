@@ -9,7 +9,7 @@ if exists("b:did_indent")
 endif
 let b:did_indent = 1
 
-function! s:filter_line(l)
+function! s:filter_line(l) " {{{1
     let l = substitute(a:l, '"\%(\\["\\]\|[^"]\)*\%("\|\\\r\=\n\)|'
                 \."'[^']*'", "''", 'g')
 
@@ -17,18 +17,18 @@ function! s:filter_line(l)
     let l = substitute(l, '^\(;\).*\|;.*', '\1', 'g')
     return l
 endfunction
-function! s:prevnonblank(num)
+function! s:prevnonblank(num) " {{{1
     let num = a:num
     while num > 0 && <SID>filter_line(getline(num)) =~# '^;\=$'
         let num -= 1
     endwhile
     return num
 endfunction
-function! s:indent(num)
+function! s:indent(num) " {{{1
     return match(getline(a:num), '^ *\%(- \)*\zs')
 endfunction
 
-function! GetSymlIndent()
+function! GetSymlIndent() " {{{1
     if v:lnum <= 1 | return <SID>indent(v:lnum) | endif
     let lnum = v:lnum
     let pnum = <SID>prevnonblank(lnum - 1)
@@ -58,6 +58,12 @@ function! GetSymlIndent()
 
     return res_indent
 endfunction
+function! GetSymlFold() "{{{1
+    return match(getline(v:lnum), '^ *\%(- \)\=\zs')/2
+endfunction
+" }}}1
 
 setlocal indentexpr=GetSymlIndent()
 setlocal indentkeys=0-,<:>,o,O,e
+setlocal foldmethod=expr
+setlocal foldexpr=GetSymlFold()
