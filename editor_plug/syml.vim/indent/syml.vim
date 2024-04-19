@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language:		syml
 " Maintainer:		A4-Tacks <wdsjxhno1001@163.com>
-" Last Change:		2024-04-17
+" Last Change:		2024-04-19
 " URL:			https://github.com/A4-Tacks/syml-rs
 
 if exists("b:did_indent")
