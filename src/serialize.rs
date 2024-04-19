@@ -138,21 +138,24 @@ impl SYMLSerialize for String {
         }
         f(format_args!("\""));
         for ch in self.chars() {
-            if ch == '\'' {
-                f(format_args!("'"));
-                continue;
-            }
-            let mut esc = ch.escape_debug();
-            match esc.size_hint().0 {
-                1 => f(format_args!("{ch}")),
-                2 => f(format_args!("\\{}", esc.nth(1).unwrap())),
-                _ if u8::try_from(ch).is_ok() => {
-                    f(format_args!("\\x{:02x}", ch as u8))
+            match ch {
+                '\n' => f(format_args!("\\n")),
+                '\r' => f(format_args!("\\r")),
+                '\t' => f(format_args!("\\t")),
+                '\"' => f(format_args!("\\\"")),
+                '\\' => f(format_args!("\\\\")),
+                '\0'..='\x1f' | '\x7f' => f(format_args!("\\x{:02x}", ch as u32)),
+                _ => match ch.escape_debug().size_hint().0 {
+                    1 => f(format_args!("{ch}")),
+                    2 => unreachable!("unescaped char: {:?}", ch),
+                    _ if u8::try_from(ch).is_ok() => {
+                        f(format_args!("\\x{:02x}", ch as u8))
+                    },
+                    _ if u16::try_from(ch).is_ok() => {
+                        f(format_args!("\\u{:04x}", ch as u16))
+                    },
+                    _  => f(format_args!("\\u{{{:01x}}}", ch as u32)),
                 },
-                _ if u16::try_from(ch).is_ok() => {
-                    f(format_args!("\\u{:04x}", ch as u16))
-                },
-                _  => f(format_args!("\\u{{{:01x}}}", ch as u32)),
             }
         }
         f(format_args!("\""));
@@ -233,6 +236,7 @@ mod tests {
             ("{}", "{}"),
             ("[]", "[]"),
             ("''", "''"),
+            (r#""\\""#, r#"\"#),
             ("a", "a"),
             ("a'b", "a'b"),
             ("'a b'", "'a b'"),
@@ -281,8 +285,10 @@ mod tests {
     #[test]
     fn serialize_str_escape_test() {
         let tests = [
-            (r#""\n""#, r#""\n""#),
+            (r#""\n\r\t\"""#, r#""\n\r\t\"""#),
+            (r#""\x00""#, r#""\x00""#),
             (r#""\x01""#, r#""\x01""#),
+            (r#""\x7f""#, r#""\x7f""#),
             (r#""\x1b""#, r#""\x1b""#),
             (r#""\u001b""#, r#""\x1b""#),
             (r#""\u0378""#, r#""\u0378""#),
