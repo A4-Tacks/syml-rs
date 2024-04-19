@@ -59,7 +59,7 @@ function! GetSymlIndent() " {{{1
     return res_indent
 endfunction
 function! GetSymlFold() "{{{1
-    return match(getline(v:lnum), '^ *\%(- \)\=\zs')/2
+    return max([0, match(getline(v:lnum), '^ *\%(- \)\=\zs\S')]) / 2
 endfunction
 " }}}1
 
