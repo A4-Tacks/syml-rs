@@ -1,8 +1,12 @@
-use std::{fs::{read_dir, self}, io::{self, stderr, IsTerminal}, path::PathBuf};
+use std::{
+    fs::{self, read_dir},
+    io::{self, stderr, IsTerminal},
+    path::PathBuf,
+};
 use syml::parser;
 
-fn to_json(value: syml::Value) -> serde_json::Value {
-    use serde_json::Value as JV;
+fn to_json(value: syml::Value) -> json::JsonValue {
+    use json::JsonValue as JV;
     use syml::Value as SV;
     match value {
         SV::String(s) => JV::String(s),
@@ -50,7 +54,7 @@ fn main() -> io::Result<()> {
         match parser::value(&src) {
             Ok(value) => {
                 let value = to_json(value);
-                let json_obj: serde_json::Value = serde_json::from_str(&json_src)?;
+                let json_obj = json::parse(&json_src).unwrap();
                 if value == json_obj {
                     color(92);
                     eprintln!(" ok");

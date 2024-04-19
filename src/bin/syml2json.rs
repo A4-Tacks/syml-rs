@@ -1,6 +1,5 @@
 use syml::cli_utils::read_input;
 use peg::str::LineCol;
-use serde_json as json;
 use std::process::exit;
 
 const HELP: &str = "\
@@ -14,16 +13,18 @@ FILE: source file\n\
 \x20   is long output\n\
 ";
 
-fn to_json(val: syml::Value) -> json::Value {
+fn to_json(val: syml::Value) -> json::JsonValue {
+    use json::JsonValue as JV;
+    use syml::Value as SV;
     match val {
-        syml::Value::String(s) => json::Value::String(s),
-        syml::Value::Array(arr) => {
-            json::Value::Array(arr.into_iter()
+        SV::String(s) => JV::String(s),
+        SV::Array(arr) => {
+            JV::Array(arr.into_iter()
                 .map(to_json)
                 .collect())
         },
-        syml::Value::Table(table) => {
-            json::Value::Object(table.into_iter()
+        SV::Table(table) => {
+            JV::Object(table.into_iter()
                 .map(|(k, v)| (k, to_json(v)))
                 .collect())
         },

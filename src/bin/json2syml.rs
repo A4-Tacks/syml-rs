@@ -1,4 +1,3 @@
-use serde_json as json;
 use std::{
     fmt,
     io::{stdout, Write},
@@ -17,20 +16,21 @@ FILE: source file\n\
 \x20   is long output\n\
 ";
 
-fn to_syml(val: json::Value) -> syml::Value {
-    use json::Value as JV;
+fn to_syml(val: json::JsonValue) -> syml::Value {
+    use json::JsonValue as JV;
     use syml::Value as SV;
     match val {
         JV::Null => SV::String("null".into()),
-        JV::Bool(bool) => SV::String(bool.to_string()),
+        JV::Boolean(bool) => SV::String(bool.to_string()),
         JV::Number(num) => SV::String(num.to_string()),
+        JV::Short(s) => s.as_str().into(),
         JV::String(s) => s.into(),
         JV::Array(arr) => {
             SV::Array(arr.into_iter().map(to_syml).collect())
         },
-        JV::Object(obj) => {
-            SV::Table(obj.into_iter()
-                .map(|(k, v)| (k, to_syml(v)))
+        mut obj @ JV::Object(_) => {
+            SV::Table(obj.entries_mut()
+                .map(|(k, v)| (k.into(), to_syml(v.take())))
                 .collect())
         },
     }
@@ -44,12 +44,10 @@ fn main() {
             exit(e.raw_os_error().unwrap_or(2))
         },
     };
-    let val = match json::from_str(&input.src) {
+    let val = match json::parse(&input.src) {
         Ok(val) => val,
         Err(e) => {
-            let (line, column) = (e.line(), e.column());
-            eprintln!("ParseError: in line {line} col {column}");
-            eprintln!("  err: {}", e);
+            eprintln!("ParseError: {e}");
             exit(3);
         },
     };
