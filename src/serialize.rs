@@ -143,6 +143,7 @@ impl SYMLSerialize for String {
                 '\r' => f(format_args!("\\r")),
                 '\t' => f(format_args!("\\t")),
                 '\"' => f(format_args!("\\\"")),
+                '\'' => f(format_args!("'")),
                 '\\' => f(format_args!("\\\\")),
                 '\0'..='\x1f' | '\x7f' => f(format_args!("\\x{:02x}", ch as u32)),
                 _ => match ch.escape_debug().size_hint().0 {
@@ -286,6 +287,7 @@ mod tests {
     fn serialize_str_escape_test() {
         let tests = [
             (r#""\n\r\t\"""#, r#""\n\r\t\"""#),
+            (r#""\"'""#, r#""\"'""#),
             (r#""\x00""#, r#""\x00""#),
             (r#""\x01""#, r#""\x01""#),
             (r#""\x7f""#, r#""\x7f""#),

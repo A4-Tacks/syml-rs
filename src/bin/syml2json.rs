@@ -1,6 +1,6 @@
 use syml::cli_utils::read_input;
 use peg::str::LineCol;
-use std::{process::exit, io::stdout};
+use std::{process::exit, io::{stdout, Write}};
 
 const HELP: &str = "\
 USAGE: syml2json [<FILE | -h | --help> [%]]\n\
@@ -55,4 +55,5 @@ fn main() {
     } else {
         json_val.write(&mut out).unwrap();
     }
+    writeln!(out).unwrap();
 }
