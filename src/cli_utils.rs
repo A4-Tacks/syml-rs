@@ -22,6 +22,8 @@ pub fn read_input(help: &str) -> io::Result<Config> {
             stdin().read_to_string(&mut input)?;
         },
         Some(arg) if arg == "-h" || arg == "--help" => {
+            println!("utils from syml@{}", env!("CARGO_PKG_VERSION"));
+            println!("repo: {}", env!("CARGO_PKG_REPOSITORY"));
             println!("{help}");
             exit(0);
         },

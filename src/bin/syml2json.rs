@@ -1,6 +1,6 @@
 use syml::cli_utils::read_input;
 use peg::str::LineCol;
-use std::process::exit;
+use std::{process::exit, io::stdout};
 
 const HELP: &str = "\
 USAGE: syml2json [<FILE | -h | --help> [%]]\n\
@@ -49,9 +49,10 @@ fn main() {
         },
     };
     let json_val = to_json(val);
+    let mut out = stdout();
     if input.is_long_output {
-        println!("{json_val:#}");
+        json_val.write_pretty(&mut out, 4).unwrap();
     } else {
-        println!("{json_val}");
+        json_val.write(&mut out).unwrap();
     }
 }

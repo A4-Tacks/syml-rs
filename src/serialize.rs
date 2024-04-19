@@ -145,14 +145,14 @@ impl SYMLSerialize for String {
             let mut esc = ch.escape_debug();
             match esc.size_hint().0 {
                 1 => f(format_args!("{ch}")),
-                2 => f(format_args!("\\{}", esc.next().unwrap())),
+                2 => f(format_args!("\\{}", esc.nth(1).unwrap())),
                 _ if u8::try_from(ch).is_ok() => {
-                    f(format_args!("\\x{:2x}", ch as u8))
+                    f(format_args!("\\x{:02x}", ch as u8))
                 },
                 _ if u16::try_from(ch).is_ok() => {
-                    f(format_args!("\\u{:4x}", ch as u16))
+                    f(format_args!("\\u{:04x}", ch as u16))
                 },
-                _  => f(format_args!("\\u{{{:x}}}", ch as u32)),
+                _  => f(format_args!("\\u{{{:01x}}}", ch as u32)),
             }
         }
         f(format_args!("\""));
@@ -274,6 +274,25 @@ mod tests {
                 &mut |args| write!(s, "{args}").unwrap(),
                 0
             );
+            assert_eq!(s, dst);
+        }
+    }
+
+    #[test]
+    fn serialize_str_escape_test() {
+        let tests = [
+            (r#""\n""#, r#""\n""#),
+            (r#""\x01""#, r#""\x01""#),
+            (r#""\x1b""#, r#""\x1b""#),
+            (r#""\u001b""#, r#""\x1b""#),
+            (r#""\u0378""#, r#""\u0378""#),
+            (r#""\u{10ffff}""#, r#""\u{10ffff}""#),
+        ];
+        for (src, dst) in tests {
+            let val = parser::value(src).unwrap();
+            let mut s = String::new();
+            val.serialize_min(
+                &mut |args| write!(s, "{args}").unwrap());
             assert_eq!(s, dst);
         }
     }
