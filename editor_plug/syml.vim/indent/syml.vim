@@ -19,24 +19,28 @@ function! s:filter_line(l) " {{{1
 endfunction
 function! s:prevnonblank(num) " {{{1
     let num = a:num
-    while num > 0 && <SID>filter_line(getline(num)) =~# '^;\=$'
+    while num > 0 && s:filter_line(getline(num)) =~# '^;\=$'
         let num -= 1
     endwhile
     return num
 endfunction
-function! s:indent(num) " {{{1
-    return match(getline(a:num), '^ *\%(- \)*\zs')
+function! s:nextnonblank(num) " {{{1
+    let num = a:num
+    let eof = line('$')
+    while num <= eof && s:filter_line(getline(num)) =~# '^;\=$'
+        let num += 1
+    endwhile
+    return num
 endfunction
-
 function! GetSymlIndent() " {{{1
-    if v:lnum <= 1 | return <SID>indent(v:lnum) | endif
+    if v:lnum <= 1 | return indent(v:lnum) | endif
     let lnum = v:lnum
-    let pnum = <SID>prevnonblank(lnum - 1)
+    let line = s:filter_line(getline(lnum))
+    if line !~# '^-\=$' | return indent(lnum) | endif
 
-    let line = <SID>filter_line(getline(lnum))
-    if line =~# '[^-]' | return <SID>indent(lnum) | endif
-
-    let pline = <SID>filter_line(getline(pnum))
+    let pnum = s:prevnonblank(lnum - 1)
+    let raw_pline = getline(pnum)
+    let pline = s:filter_line(raw_pline)
 
     let diff = 0
 
@@ -47,13 +51,10 @@ function! GetSymlIndent() " {{{1
         let diff -= 1
     endif
 
-    let res_indent = max([0, <SID>indent(pnum)]) + diff * &shiftwidth
+    let res_indent = match(raw_pline, '^ *\%(- \)*\zs') + diff * &shiftwidth
 
-    if res_indent > <SID>indent(lnum) && line =~# '^-'
-        return <SID>indent(lnum)
-    endif
-    if res_indent > <SID>indent(lnum) && empty(line) && pnum =~# '^-'
-        return <SID>indent(lnum)
+    if res_indent > indent(lnum) && line =~# '^-'
+        return indent(lnum)
     endif
 
     return res_indent
@@ -63,11 +64,16 @@ function! GetSymlFold() "{{{1
     if line =~# '^\s*$'
         return '='
     endif
-    return max([0, match(line, '^ *\%(- \)\=\zs\S')]) / 2
+    let indent = match(line, '^ *\%(- \)\=\zs\S')
+    if s:filter_line(getline(v:lnum)) =~# ':$'
+        let nnum = s:nextnonblank(v:lnum+1)
+        return '>'.(match(getline(nnum), '^ *\%(- \)\=\zs\S') / 2)
+    endif
+    return max([0, indent]) / 2
 endfunction
 " }}}1
 
 setlocal indentexpr=GetSymlIndent()
-setlocal indentkeys=0-,<:>,o,O,e
+setlocal indentkeys=0-,<->,o,O,e
 setlocal foldmethod=expr
 setlocal foldexpr=GetSymlFold()
