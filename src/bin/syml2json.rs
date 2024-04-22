@@ -1,9 +1,10 @@
-use syml::cli_utils::read_input;
+use syml::cli_utils::{read_input, Config};
 use peg::str::LineCol;
 use std::{process::exit, io::{stdout, Write}};
+use json::number::Number;
 
 const HELP: &str = "\
-USAGE: syml2json [<FILE | -h | --help> [%]]\n\
+USAGE: syml2json [<FILE | -h | --help> [% | -n]]\n\
 convert SYML to JSON\n\
 \n\
 FILE: source file\n\
@@ -11,21 +12,29 @@ FILE: source file\n\
 \n\
 %:\n\
 \x20   is long output\n\
+-n:\n\
+\x20   convert f64 format number to JSON number\n\
 ";
 
-fn to_json(val: syml::Value) -> json::JsonValue {
+fn to_json(val: syml::Value, cfg: &Config) -> json::JsonValue {
     use json::JsonValue as JV;
     use syml::Value as SV;
     match val {
+        SV::String(s) if cfg.convert_number => {
+            s.parse::<f64>()
+                .map(Number::from)
+                .map(JV::Number)
+                .unwrap_or(JV::String(s))
+        },
         SV::String(s) => JV::String(s),
         SV::Array(arr) => {
             JV::Array(arr.into_iter()
-                .map(to_json)
+                .map(|val| to_json(val, cfg))
                 .collect())
         },
         SV::Table(table) => {
             JV::Object(table.into_iter()
-                .map(|(k, v)| (k, to_json(v)))
+                .map(|(k, v)| (k, to_json(v, cfg)))
                 .collect())
         },
     }
@@ -48,7 +57,7 @@ fn main() {
             exit(3);
         },
     };
-    let json_val = to_json(val);
+    let json_val = to_json(val, &input);
     let mut out = stdout();
     if input.is_long_output {
         json_val.write_pretty(&mut out, 4).unwrap();
