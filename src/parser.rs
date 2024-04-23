@@ -190,7 +190,7 @@ peg::parser!(grammar parser() for str {
     /// assert_eq!(value.unwrap(), expect.into());
     /// ```
     pub rule value() -> Value
-        = v:ivalue(0) cnl() { v }
+        = cnl()? v:ivalue(0) cnl() { v }
 });
 
 #[cfg(test)]
