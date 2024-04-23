@@ -1,7 +1,6 @@
 use syml::cli_utils::{read_input, Config};
 use peg::str::LineCol;
 use std::{process::exit, io::{stdout, Write}};
-use json::number::Number;
 
 const HELP: &str = "\
 USAGE: syml2json [<FILE | -h | --help> [% | -n]]\n\
@@ -13,20 +12,35 @@ FILE: source file\n\
 %:\n\
 \x20   is long output\n\
 -n:\n\
-\x20   convert f64 format number to JSON number\n\
+\x20   convert f64 format string to JSON number\n\
+-b:\n\
+\x20   convert bool format string to JSON boolean\n\
+-N:\n\
+\x20   convert null format string to JSON null\n\
+-w:\n\
+\x20   enable weak convert (like enable all convert)\n\
 ";
 
 fn to_json(val: syml::Value, cfg: &Config) -> json::JsonValue {
     use json::JsonValue as JV;
     use syml::Value as SV;
     match val {
-        SV::String(s) if cfg.convert_number => {
-            s.parse::<f64>()
-                .map(Number::from)
-                .map(JV::Number)
+        SV::String(s) => {
+            (cfg.convert_null && s == "null")
+                .then_some(JV::Null)
+                .or_else(|| cfg.convert_boolean
+                    .then(|| s.parse::<bool>()
+                        .ok()
+                        .map(JV::Boolean))
+                    .flatten())
+                .or_else(|| cfg.convert_number
+                    .then(|| s.parse::<f64>()
+                        .ok()
+                        .map(Into::into)
+                        .map(JV::Number))
+                    .flatten())
                 .unwrap_or(JV::String(s))
         },
-        SV::String(s) => JV::String(s),
         SV::Array(arr) => {
             JV::Array(arr.into_iter()
                 .map(|val| to_json(val, cfg))

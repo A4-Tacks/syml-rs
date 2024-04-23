@@ -41,18 +41,17 @@ impl_enum_froms!(impl From for Reader {
 });
 
 #[non_exhaustive]
+#[derive(Debug, Default)]
 pub struct Config {
     pub src: String,
     pub is_long_output: bool,
     pub convert_number: bool,
+    pub convert_boolean: bool,
+    pub convert_null: bool,
 }
 
 pub fn read_input(help: &str) -> io::Result<Config> {
-    let mut config = Config {
-        src: String::new(),
-        is_long_output: false,
-        convert_number: false,
-    };
+    let mut config = Config::default();
     let mut args = args_os().skip(1);
     let mut reader: Reader = match args.next().as_deref() {
         Some(arg) if arg == "-" => {
@@ -75,6 +74,15 @@ pub fn read_input(help: &str) -> io::Result<Config> {
         match args.next() {
             Some(arg) if arg == "%" => config.is_long_output = true,
             Some(arg) if arg == "-n" => config.convert_number = true,
+            Some(arg) if arg == "-b" => config.convert_boolean = true,
+            Some(arg) if arg == "-N" => config.convert_null = true,
+            Some(arg) if arg == "-w" => {
+                [
+                    config.convert_null,
+                    config.convert_number,
+                    config.convert_boolean,
+                ] = [true; 3];
+            },
             Some(arg) => {
                 let mut stderr = stderr().lock();
                 || -> Result<(), io::Error> {
