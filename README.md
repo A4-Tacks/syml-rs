@@ -20,13 +20,14 @@ SYML is a configuration language similar to YAML, but may be more user-friendly
     / `x` hex{2}\
     / `u` (hex{4} / `{` hex+ `}`)\
     / `U` hex{8}\
-    / comment? `\r`? `\n` \[ \\t]\*\
   )
+- **str_ignore**:\
+  `\` (_ comment)? `\r`? `\n` _
 - **simple-val**:\
   ([!#$%&()\*+./0-9<=>?@A-Z\\\\^\_\`a-z|\~\p{XID\_Start}] / `-` !` `)\
   [!#$%&()\*+./0-9<=>?@A-Z\\\\^\_\`a-z|\~\\\-'\p{XID\_Continue}]\*\
-  / `'` \[^'\r\n] `'`\
-  / `"` (escape\* / \[^\\r\\n\\\\]) `"`\
+  / `'` \[^'\r\n]\* `'`\
+  / `"` str\_ignore\* ((escape / \[^\\r\\n\\\\]) str\_ignore\*)\* `"`
 - **inline-value**:\
   `[` _ (simple-val (_ `,` _ simple-val)* _ `,`?)? _ `]`\
   / `{` _ (simple-val _ `:` _ inline-value (_ `,` simple-val _ `:` _ inline-value)* _ `,`?)? _ `}`\

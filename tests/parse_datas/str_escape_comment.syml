@@ -4,3 +4,11 @@ str1: "abc\; This is a comment
       \ def"
 str2: "abc\; This is a comment
       \  def"
+str3: "abc\; mult comments
+\;mult comments
+\
+\
+\; escape eol
+"
+str4: "abc\     ; whitespace prefix comments
+       d"

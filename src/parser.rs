@@ -54,27 +54,32 @@ peg::parser!(grammar parser() for str {
             | '~' | '-' | '\''] / ##ident_continue()
 
     pub(crate) rule simple_literal() -> &'input str
-        = s:$(
+        = s:quiet! { $(
             simple_literal_start()
             simple_literal_continue()*
-        )
+        ) }
+        / expected!("simple-literal")
 
 
     rule _()
-        = [' ' | '\t']*
+        = quiet! { [' ' | '\t']* }
+        / expected!("white-space")
 
     rule eof()
-        = ![_]
+        = quiet! { ![_] }
+        / expected!("eof")
 
     rule nl_noeof()
-        = "\r"? "\n"
+        = quiet! { "\r"? "\n" }
+        / expected!("newline")
 
     rule nl()
         = nl_noeof()
         / eof()
 
     rule comment()
-        = ";" (!nl() [_])*
+        = quiet! { ";" (!nl() [_])* }
+        / expected!("comment")
 
     rule cnl()
         = (_ comment()? nl_noeof())+
@@ -85,6 +90,7 @@ peg::parser!(grammar parser() for str {
 
     pub(super) rule indent(n: usize)
         = ##indent(n)
+        / expected!("indent")
 
 
     pub(crate) rule literal_string_body()
@@ -94,11 +100,12 @@ peg::parser!(grammar parser() for str {
         = "'" s:$(literal_string_body()) "'" { s }
 
     rule hex()
-        = ['0'..='9' | 'a'..='f' | 'A'..='F']
+        = quiet! { ['0'..='9' | 'a'..='f' | 'A'..='F'] }
+        / expected!("hex-char")
 
     rule string_escaped() -> char
         = "\\" ch:(
-            ch:['\\' | '\'' | '"' | ' ' | '\t'] { ch }
+            ['\\' | '\'' | '"' | ' ' | '\t']
             / "n" { '\n' }
             / "r" { '\r' }
             / "t" { '\t' }
@@ -114,12 +121,18 @@ peg::parser!(grammar parser() for str {
         ) { ch }
 
     rule string_ignore_empty()
-        = "\\" comment()? nl_noeof() _
+        = "\\" (_ comment())? nl_noeof() _
+
+    rule string_ch() -> char
+        = quiet! { !nl() ch:[^ '\\' | '"'] { ch } }
+        / expected!("string-ch")
 
     rule string() -> String
-        = "\"" string_ignore_empty()?
-            s:(ch:string_escaped() string_ignore_empty()? { ch }
-                / !nl() ch:[^ '\\' | '"'] string_ignore_empty()? { ch }
+        = "\"" string_ignore_empty()*
+            s:(
+                ch:(string_escaped() / string_ch())
+                string_ignore_empty()*
+                { ch }
             )*
             "\""
         { s.into_iter().collect() }
