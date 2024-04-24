@@ -188,126 +188,126 @@ impl AsRef<Self> for Value {
         self
     }
 }
-impl TryInto<String> for Value {
+impl TryFrom<Value> for String {
     type Error = Value;
 
-    fn try_into(self) -> Result<String, Self::Error> {
-        match self {
+    fn try_from(this: Value) -> Result<String, Self::Error> {
+        match this {
             Value::String(s) => Ok(s),
             oth => Err(oth),
         }
     }
 }
-impl TryInto<Vec<Self>> for Value {
+impl TryFrom<Value> for Vec<Value> {
     type Error = Value;
 
-    fn try_into(self) -> Result<Vec<Value>, Value> {
-        match self {
+    fn try_from(this: Value) -> Result<Vec<Value>, Value> {
+        match this {
             Value::Array(arr) => Ok(arr),
             oth => Err(oth),
         }
     }
 }
-impl TryInto<Table> for Value {
+impl TryFrom<Value> for Table {
     type Error = Value;
 
-    fn try_into(self) -> Result<Table, Value> {
-        match self {
+    fn try_from(this: Value) -> Result<Table, Value> {
+        match this {
             Value::Table(map) => Ok(map),
             oth => Err(oth),
         }
     }
 }
-impl<'a> TryInto<&'a str> for &'a Value {
+impl<'a> TryFrom<&'a Value> for &'a str {
     type Error = ();
 
-    fn try_into(self) -> Result<&'a str, Self::Error> {
-        self.as_str().ok_or(())
+    fn try_from(this: &'a Value) -> Result<&'a str, Self::Error> {
+        this.as_str().ok_or(())
     }
 }
-impl<'a> TryInto<&'a String> for &'a Value {
+impl<'a> TryFrom<&'a Value> for &'a String {
     type Error = ();
 
-    fn try_into(self) -> Result<&'a String, Self::Error> {
-        self.as_string().ok_or(())
+    fn try_from(this: &'a Value) -> Result<&'a String, Self::Error> {
+        this.as_string().ok_or(())
     }
 }
-impl<'a> TryInto<&'a [Value]> for &'a Value {
+impl<'a> TryFrom<&'a Value> for &'a [Value] {
     type Error = ();
 
-    fn try_into(self) -> Result<&'a [Value], Self::Error> {
-        self.as_slice().ok_or(())
+    fn try_from(this: &'a Value) -> Result<&'a [Value], Self::Error> {
+        this.as_slice().ok_or(())
     }
 }
-impl<'a> TryInto<&'a Vec<Value>> for &'a Value {
+impl<'a> TryFrom<&'a Value> for &'a Vec<Value> {
     type Error = ();
 
-    fn try_into(self) -> Result<&'a Vec<Value>, Self::Error> {
-        self.as_array().ok_or(())
+    fn try_from(this: &'a Value) -> Result<&'a Vec<Value>, Self::Error> {
+        this.as_array().ok_or(())
     }
 }
-impl<'a> TryInto<&'a Table> for &'a Value {
+impl<'a> TryFrom<&'a Value> for &'a Table {
     type Error = ();
 
-    fn try_into(self) -> Result<&'a Table, Self::Error> {
-        self.as_table().ok_or(())
+    fn try_from(this: &'a Value) -> Result<&'a Table, Self::Error> {
+        this.as_table().ok_or(())
     }
 }
-impl<'a> TryInto<&'a mut Table> for &'a mut Value {
-    type Error = Self;
+impl<'a> TryFrom<&'a mut Value> for &'a mut Table {
+    type Error = &'a mut Value;
 
-    fn try_into(self) -> Result<&'a mut Table, Self::Error> {
-        if let Value::Table(table) = self {
+    fn try_from(this: &'a mut Value) -> Result<&'a mut Table, Self::Error> {
+        if let Value::Table(table) = this {
             Ok(table)
         } else {
-            Err(self)
+            Err(this)
         }
     }
 }
-impl<'a> TryInto<&'a mut Vec<Value>> for &'a mut Value {
-    type Error = Self;
+impl<'a> TryFrom<&'a mut Value> for &'a mut Vec<Value> {
+    type Error = &'a mut Value;
 
-    fn try_into(self) -> Result<&'a mut Vec<Value>, Self::Error> {
-        if let Value::Array(arr) = self {
+    fn try_from(this: &'a mut Value) -> Result<&'a mut Vec<Value>, Self::Error> {
+        if let Value::Array(arr) = this {
             Ok(arr)
         } else {
-            Err(self)
+            Err(this)
         }
     }
 }
-impl<'a> TryInto<&'a mut [Value]> for &'a mut Value {
-    type Error = Self;
+impl<'a> TryFrom<&'a mut Value> for &'a mut [Value] {
+    type Error = &'a mut Value;
 
-    fn try_into(self) -> Result<&'a mut [Value], Self::Error> {
-        if let Value::Array(arr) = self {
+    fn try_from(this: &'a mut Value) -> Result<&'a mut [Value], Self::Error> {
+        if let Value::Array(arr) = this {
             Ok(&mut arr[..])
         } else {
-            Err(self)
+            Err(this)
         }
     }
 }
-impl<'a> TryInto<&'a mut String> for &'a mut Value {
-    type Error = Self;
+impl<'a> TryFrom<&'a mut Value> for &'a mut String {
+    type Error = &'a mut Value;
 
-    fn try_into(self) -> Result<&'a mut String, Self::Error> {
-        if let Value::String(str) = self {
+    fn try_from(this: &'a mut Value) -> Result<&'a mut String, Self::Error> {
+        if let Value::String(str) = this {
             Ok(str)
         } else {
-            Err(self)
+            Err(this)
         }
     }
 }
-macro_rules! impl_try_into_parse {
+macro_rules! impl_try_from_parse {
     (@impl $err:ty = $($num:ty),+) => {
         $(
-            impl TryInto<$num> for &'_ Value {
+            impl TryFrom<&'_ Value> for $num {
                 type Error = Option<$err>;
 
                 /// use [`FromStr`]
                 ///
                 /// [`FromStr`]: core::str::FromStr
-                fn try_into(self) -> Result<$num, Self::Error> {
-                    self.as_str()
+                fn try_from(this: &'_ Value) -> Result<$num, Self::Error> {
+                    this.as_str()
                         .ok_or(None)
                         .and_then(|s| s.parse()
                             .map_err(Some))
@@ -317,11 +317,11 @@ macro_rules! impl_try_into_parse {
     };
     ($($err:ty = $($num:ty),+ $(,)?);* $(;)?) => {
         $(
-            impl_try_into_parse!(@impl $err = $($num),+);
+            impl_try_from_parse!(@impl $err = $($num),+);
         )*
     };
 }
-impl_try_into_parse! {
+impl_try_from_parse! {
     num::ParseIntError      = i8, i16, i32, i64, i128, isize;
     num::ParseIntError      = u8, u16, u32, u64, u128, usize;
     num::ParseFloatError    = f32, f64;

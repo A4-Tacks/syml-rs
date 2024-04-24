@@ -41,7 +41,7 @@ SYML is a configuration language similar to YAML, but may be more user-friendly
   )\
   / inline-value
 - **value**:\
-  cnl()? ivalue(0) cnl()\
+  cnl()? ivalue(0) cnl()
 
 # Examples
 ```ignore
