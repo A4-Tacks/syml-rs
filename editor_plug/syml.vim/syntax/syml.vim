@@ -22,7 +22,7 @@ syn match symlKey /'[^']*'[ \t]*:/
 syn region symlValue start=/"/ end=/"/ contains=symlEscape,symlEscapeErr
 syn match symlEscapeErr /\\./ contained
 syn match symlEscape /\\[nrt"' \t\\]/ contained
-syn match symlEscape /\\[ \t]*;\@=/ nextgroup=symlComment contained
+syn match symlEscape /\\;\@=/ nextgroup=symlComment contained
 syn match symlEscape /\\\ze\r\=\n/ contained
 syn match symlEscape /\\x\x\{2}/ contained
 syn match symlEscape /\\u\x\{4}/ contained

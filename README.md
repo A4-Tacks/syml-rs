@@ -22,7 +22,7 @@ SYML is a configuration language similar to YAML, but may be more user-friendly
     / `U` hex{8}\
   )
 - **str_ignore**:\
-  `\` (_ comment)? `\r`? `\n` _
+  `\` comment? `\r`? `\n` _
 - **simple-val**:\
   ([!#$%&()\*+./0-9<=>?@A-Z\\\\^\_\`a-z|\~\p{XID\_Start}] / `-` !` `)\
   [!#$%&()\*+./0-9<=>?@A-Z\\\\^\_\`a-z|\~\\\-'\p{XID\_Continue}]\*\

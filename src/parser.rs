@@ -121,7 +121,7 @@ peg::parser!(grammar parser() for str {
         ) { ch }
 
     rule string_ignore_empty()
-        = "\\" (_ comment())? nl_noeof() _
+        = "\\" comment()? nl_noeof() _
 
     rule string_ch() -> char
         = quiet! { !nl() ch:[^ '\\' | '"'] { ch } }

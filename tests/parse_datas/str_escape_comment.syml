@@ -10,5 +10,5 @@ str3: "abc\; mult comments
 \
 \; escape eol
 "
-str4: "abc\     ; whitespace prefix comments
+str4: "abc\; whitespace prefix comments
        d"
