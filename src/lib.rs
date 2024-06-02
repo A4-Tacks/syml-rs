@@ -305,6 +305,9 @@ macro_rules! impl_try_from_parse {
 
                 /// use [`FromStr`]
                 ///
+                /// - Return [`None`] indicates type mismatch,
+                /// - Return [`Some`] indicates type matched and parse error
+                ///
                 /// [`FromStr`]: core::str::FromStr
                 fn try_from(this: &'_ Value) -> Result<$num, Self::Error> {
                     this.as_str()
