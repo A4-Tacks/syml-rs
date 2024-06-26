@@ -10,7 +10,7 @@ endif
 let b:did_indent = 1
 
 function! s:filter_line(l) " {{{1
-    let l = substitute(a:l, '"\%(\\["\\]\|[^"]\)*\%("\|\\\r\=\n\)|'
+    let l = substitute(a:l, '"\%(\\["\\]\|[^"]\)*\%("\|\\\r\=\n\)\|'
                 \."'[^']*'", "''", 'g')
 
     let l = substitute(l, '\%(^ *\|[ \t]*$\)', '', 'g')
